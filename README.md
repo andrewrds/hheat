@@ -1,2 +1,2 @@
 # hive-heat
-Control Hive smart thermostat from command line
+Control Hive smart thermostat from the command line
