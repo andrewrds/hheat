@@ -25,6 +25,8 @@ fn main() {
         let target_temp = args[1].parse::<f64>().unwrap();
         set_target_temp(&client, &heating_object, &token, target_temp);
     }
+
+    logout(&client, &token);
 }
 
 fn load_settings() -> TomlValue {
@@ -50,6 +52,15 @@ fn login(client: &Client, username: &str, password: &str) -> String {
 
     let token = resp["token"].as_str().expect(&format!("Failed to get login token: {}", resp));
     return String::from(token);
+}
+
+fn logout(client: &Client, token: &str) {
+    client
+        .delete(&format!("{}auth/logout", HIVE_API_ENDPOINT))
+        .header(AUTHORIZATION, HeaderValue::from_str(token).unwrap())
+        .body("{}")
+        .send()
+        .expect("Logout failed");
 }
 
 fn retrieve_products_json(client: &Client, token: &str) -> Value {
