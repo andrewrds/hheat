@@ -1,5 +1,6 @@
 use std::fs::File;
 use std::io::prelude::*;
+use std::env;
 use reqwest::blocking::Client;
 use serde_json::{Value, map::Map};
 use http::header::{HeaderValue, AUTHORIZATION};
@@ -9,6 +10,7 @@ use dirs;
 const HIVE_API_ENDPOINT: &str = "https://beekeeper.hivehome.com/1.0/";
  
 fn main() {
+    let args: Vec<String> = env::args().collect();
     let settings = load_settings();
 
     let client = Client::new();
@@ -17,7 +19,12 @@ fn main() {
     let product_json = retrieve_products_json(&client, &token);
     let heating_object = find_heating_object(&product_json);
 
-    output_status(&heating_object);
+    if args.len() == 1 {
+        output_status(&heating_object);
+    } else {
+        let target_temp = args[1].parse::<f64>().unwrap();
+        set_target_temp(&client, &heating_object, &token, target_temp);
+    }
 }
 
 fn load_settings() -> TomlValue {
@@ -41,7 +48,7 @@ fn login(client: &Client, username: &str, password: &str) -> String {
         .json()
         .expect("Failed to parse login response");
 
-    let token = resp["token"].as_str().unwrap();
+    let token = resp["token"].as_str().expect(&format!("Failed to get login token: {}", resp));
     return String::from(token);
 }
 
@@ -71,5 +78,15 @@ fn output_status(heating_object: &Map<String, Value>) {
     let target_temp = heating_object["state"].as_object().unwrap()["target"].as_f64().unwrap();
     println!("Temperature {:>6.1}°C", temp);
     println!("Target      {:>6.1}°C", target_temp);
+}
+
+fn set_target_temp(client: &Client, heating_object: &Map<String, Value>, token: &str, target_temp: f64) {
+    let device_id = heating_object["id"].as_str().unwrap();
+    client
+        .post(&format!("{}nodes/heating/{}", HIVE_API_ENDPOINT, device_id))
+        .header(AUTHORIZATION, HeaderValue::from_str(token).unwrap())
+        .body(format!("{{\"target\":{}}}", target_temp))
+        .send()
+        .expect("Set temperature request failed");
 }
 
