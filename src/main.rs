@@ -17,10 +17,7 @@ fn main() {
     let product_json = retrieve_products_json(&client, &token);
     let heating_object = find_heating_object(&product_json);
 
-    let temp = heating_object["props"].as_object().unwrap()["temperature"].as_f64().unwrap();
-    let target_temp = heating_object["state"].as_object().unwrap()["target"].as_f64().unwrap();
-    println!("Temperature {:>6.1}°C", temp);
-    println!("Target      {:>6.1}°C", target_temp);
+    output_status(&heating_object);
 }
 
 fn load_settings() -> TomlValue {
@@ -67,5 +64,12 @@ fn find_heating_object(product_json: &Value) -> &Map<String, Value> {
     }
 
    panic!();
+}
+
+fn output_status(heating_object: &Map<String, Value>) {
+    let temp = heating_object["props"].as_object().unwrap()["temperature"].as_f64().unwrap();
+    let target_temp = heating_object["state"].as_object().unwrap()["target"].as_f64().unwrap();
+    println!("Temperature {:>6.1}°C", temp);
+    println!("Target      {:>6.1}°C", target_temp);
 }
 
