@@ -2,7 +2,7 @@
 Control UK Hive smart thermostat from the command line.
 
 ## Setup
-To set username and password, create a simple TOML file `~/hive-heat` in your user home directory with the credentials for your Hive heating account:
+To set username and password, create a simple TOML file `~/.hive-heat/conf.toml` in your user home directory with the credentials for your Hive heating account:
 ```toml
 username = "username@example.com"
 password = "passw0rd"

@@ -32,6 +32,7 @@ fn main() {
 fn load_settings() -> TomlValue {
     let mut path = dirs::home_dir().unwrap();
     path.push(".hive-heat");
+    path.push("conf.toml");
     let path = path.as_path();
 
     let mut file = File::open(path)
