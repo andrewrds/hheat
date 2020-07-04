@@ -87,8 +87,10 @@ fn find_heating_object(product_json: &Value) -> &Map<String, Value> {
 fn output_status(heating_object: &Map<String, Value>) {
     let temp = heating_object["props"].as_object().unwrap()["temperature"].as_f64().unwrap();
     let target_temp = heating_object["state"].as_object().unwrap()["target"].as_f64().unwrap();
+    let working = heating_object["props"].as_object().unwrap()["working"].as_bool().unwrap();
+    let working_indicator = if working {"🔥"} else {""};
     println!("Temperature {:>6.1}°C", temp);
-    println!("Target      {:>6.1}°C", target_temp);
+    println!("Target      {:>6.1}°C {}", target_temp, working_indicator);
 }
 
 fn set_target_temp(client: &Client, heating_object: &Map<String, Value>, token: &str, target_temp: f64) {
