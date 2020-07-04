@@ -18,7 +18,9 @@ fn main() {
     let heating_object = find_heating_object(&product_json);
 
     let temp = heating_object["props"].as_object().unwrap()["temperature"].as_f64().unwrap();
-    println!("{:#?}°C", temp);
+    let target_temp = heating_object["state"].as_object().unwrap()["target"].as_f64().unwrap();
+    println!("Temperature {:>6.1}°C", temp);
+    println!("Target      {:>6.1}°C", target_temp);
 }
 
 fn load_settings() -> TomlValue {
