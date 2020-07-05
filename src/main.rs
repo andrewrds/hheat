@@ -47,12 +47,12 @@ fn main() {
 
 fn load_settings() -> TomlValue {
     let mut path = dirs::home_dir().unwrap();
-    path.push(".hive-heat");
+    path.push(".hheat");
     path.push("conf.toml");
     let path = path.as_path();
 
     let mut file = File::open(path)
-        .expect("Failed to open ~/.hive-heat/conf.toml");
+        .expect("Failed to open ~/.hheat/conf.toml");
     let mut settings_string = String::new();
     file.read_to_string(&mut settings_string).unwrap();
     settings_string.parse::<TomlValue>().unwrap()
@@ -60,7 +60,7 @@ fn load_settings() -> TomlValue {
 
 fn load_token() -> Option<String> {
     let mut path = dirs::home_dir().unwrap();
-    path.push(".hive-heat");
+    path.push(".hheat");
     path.push("token");
     let path = path.as_path();
 
@@ -96,12 +96,12 @@ fn send_login_request(client: &Client, username: &str, password: &str) -> String
 
 fn save_token(token: &str) {
     let mut path = dirs::home_dir().unwrap();
-    path.push(".hive-heat");
+    path.push(".hheat");
     path.push("token");
     let path = path.as_path();
 
     fs::write(path, token)
-        .expect("Failed to write to ~/.hive-heat/token");
+        .expect(&format!("Failed to write to {:#?}", path));
 }
 
 
