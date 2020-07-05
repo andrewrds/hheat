@@ -47,7 +47,7 @@ fn load_settings() -> TomlValue {
         .expect("Failed to open ~/.hive-heat/conf.toml");
     let mut settings_string = String::new();
     file.read_to_string(&mut settings_string).unwrap();
-    return settings_string.parse::<TomlValue>().unwrap();
+    settings_string.parse::<TomlValue>().unwrap()
 }
 
 fn load_token() -> Option<String> {
@@ -83,7 +83,7 @@ fn send_login_request(client: &Client, username: &str, password: &str) -> String
         .expect("Failed to parse login response");
 
     let token = resp["token"].as_str().expect(&format!("Failed to get login token: {}", resp));
-    return String::from(token);
+    String::from(token)
 }
 
 fn save_token(token: &str) {
@@ -116,7 +116,7 @@ fn find_heating_object(product_json: &Value) -> &Map<String, Value> {
         }
     }
 
-   panic!();
+   panic!()
 }
 
 fn output_status(heating_object: &Map<String, Value>) {
