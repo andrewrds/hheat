@@ -142,9 +142,9 @@ fn output_status(heating_object: &Map<String, Value>) {
     let working = props["working"].as_bool().unwrap();
 
     let working_indicator = if working && mode != "OFF" {"🔥"} else {""};
-    println!("Mode          {:>7}", mode.to_lowercase());
-    println!("Temperature   {:>6.1}°", temp);
-    println!("Target        {:>6.1}° {}", target_temp, working_indicator);
+    println!("Mode          {:>8}", mode.to_lowercase());
+    println!("Temperature   {:>7.1}°", temp);
+    println!("Target        {:>7.1}° {}", target_temp, working_indicator);
 }
 
 fn set_target_temp(client: &Client, heating_object: &Map<String, Value>, token: &str, target_temp: f64) {
