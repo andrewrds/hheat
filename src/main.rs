@@ -2,6 +2,8 @@ use std::error::Error;
 use std::fs;
 use std::fs::File;
 use std::io::prelude::*;
+use std::io::Error as IoError;
+use std::io::ErrorKind;
 use std::env;
 use reqwest::blocking::Client;
 use serde_json::{Value, map::Map};
@@ -104,14 +106,19 @@ fn save_token(token: &str) {
 
 
 fn retrieve_products_json(client: &Client, token: &str) -> Result<Value, Box<dyn Error>> {
-    let product_json = client
+    let product_json: Value = client
         .get(&format!("{}products?after=", HIVE_API_ENDPOINT))
         .header(AUTHORIZATION, HeaderValue::from_str(token)?)
         .send()?
         .json()
         .expect("Failed to parse products response");
 
-    Ok(product_json)
+    let map_response = product_json.as_object();
+    if map_response.is_some() && map_response.unwrap().get("error").is_some() {
+        Err(Box::new(IoError::new(ErrorKind::Other, format!("Error getting JSON: {}", map_response.unwrap().get("error").unwrap()))))
+    } else {
+        Ok(product_json)
+    }
 }
 
 fn find_heating_object(product_json: &Value) -> &Map<String, Value> {
