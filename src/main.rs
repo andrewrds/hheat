@@ -31,6 +31,9 @@ fn main() {
 
     if args.len() == 1 {
         output_status(&heating_object);
+    } else if args[1] == "off" {
+        set_mode(&client, &heating_object, &token, "OFF");
+
     } else {
         let target_temp = args[1].parse::<f64>().unwrap();
         set_target_temp(&client, &heating_object, &token, target_temp);
@@ -128,19 +131,39 @@ fn output_status(heating_object: &Map<String, Value>) {
     let temp = props["temperature"].as_f64().unwrap();
     let working = props["working"].as_bool().unwrap();
 
-    let working_indicator = if working {"🔥"} else {""};
+    let working_indicator = if working && mode != "OFF" {"🔥"} else {""};
     println!("Mode          {:>8}", mode.to_lowercase());
     println!("Temperature   {:>6.1}°C", temp);
     println!("Target        {:>6.1}°C {}", target_temp, working_indicator);
 }
 
 fn set_target_temp(client: &Client, heating_object: &Map<String, Value>, token: &str, target_temp: f64) {
+    let state = heating_object["state"].as_object().unwrap();
+    let mode = state["mode"].as_str().unwrap();
+
+    let body = if mode == "OFF" {
+        // If heating is off then switch to manual when setting temperature
+        format!("{{\"target\":{}, \"mode\": MANUAL}}", target_temp)
+    } else {
+        format!("{{\"target\":{}}}", target_temp)
+    };
+
     let device_id = heating_object["id"].as_str().unwrap();
     client
         .post(&format!("{}nodes/heating/{}", HIVE_API_ENDPOINT, device_id))
         .header(AUTHORIZATION, HeaderValue::from_str(token).unwrap())
-        .body(format!("{{\"target\":{}}}", target_temp))
+        .body(body)
         .send()
         .expect("Set temperature request failed");
+}
+
+fn set_mode(client: &Client, heating_object: &Map<String, Value>, token: &str, mode: &str) {
+    let device_id = heating_object["id"].as_str().unwrap();
+    client
+        .post(&format!("{}nodes/heating/{}", HIVE_API_ENDPOINT, device_id))
+        .header(AUTHORIZATION, HeaderValue::from_str(token).unwrap())
+        .body(format!("{{\"mode\":{}}}", mode))
+        .send()
+        .expect("Set mode request failed");
 }
 
