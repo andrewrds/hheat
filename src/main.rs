@@ -33,7 +33,10 @@ fn main() {
         output_status(&heating_object);
     } else if args[1] == "off" {
         set_mode(&client, &heating_object, &token, "OFF");
-
+    } else if args[1] == "manual" {
+        set_mode(&client, &heating_object, &token, "MANUAL");
+    } else if args[1] == "schedule" {
+        set_mode(&client, &heating_object, &token, "SCHEDULE");
     } else {
         let target_temp = args[1].parse::<f64>().unwrap();
         set_target_temp(&client, &heating_object, &token, target_temp);
